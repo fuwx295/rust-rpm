@@ -1,1 +1,1 @@
-mod rpm;
+mod query;
