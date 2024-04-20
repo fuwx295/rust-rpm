@@ -21,13 +21,13 @@ impl Header {
             librpm_sys::rpmtdReset(&mut td);
         }
         let rc;
-        if tag == Tag::LONGSIZE {
+        if tag == Tag::LONGSIZE || tag == Tag::REQUIRENEVRS {
             rc = unsafe {
                 librpm_sys::headerGet(
                     self.0,
                     Tag::LONGFILESIZES as i32,
                     &mut td,
-                    librpm_sys::headerGetFlags_e_HEADERGET_ALLOC,
+                    librpm_sys::headerGetFlags_e_HEADERGET_ARGV,
                 )
             };
         } else {
@@ -42,7 +42,6 @@ impl Header {
             };
         }
         
-
         if rc == 0 {
             return None;
         }
@@ -89,6 +88,7 @@ impl Header {
             vendor: self.get(Tag::VENDOR).map(|d|d.as_str().unwrap().to_owned()),
             url: self.get(Tag::URL).map(|d|d.as_str().unwrap().to_owned()),
             bugurl: self.get(Tag::BUGURL).map(|d|d.as_str().unwrap().to_owned()),
+            requirenevrs: self.get(Tag::REQUIRENEVRS).map(|d|d.as_str().unwrap().to_owned()),
         }
     }
 }

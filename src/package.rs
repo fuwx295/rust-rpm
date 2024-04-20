@@ -24,6 +24,7 @@ pub struct Package {
     pub bugurl: Option<String>,
     pub summary: String,
     pub description: String,
+    pub requirenevrs: Option<String>
 }
 
 impl Package {
