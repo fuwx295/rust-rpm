@@ -20,15 +20,28 @@ impl Header {
         unsafe {
             librpm_sys::rpmtdReset(&mut td);
         }
-
-        let rc = unsafe {
-            librpm_sys::headerGet(
-                self.0,
-                tag as i32,
-                &mut td,
-                librpm_sys::headerGetFlags_e_HEADERGET_MINMEM,
-            )
-        };
+        let rc;
+        if tag == Tag::LONGSIZE {
+            rc = unsafe {
+                librpm_sys::headerGet(
+                    self.0,
+                    Tag::LONGFILESIZES as i32,
+                    &mut td,
+                    librpm_sys::headerGetFlags_e_HEADERGET_ALLOC,
+                )
+            };
+        } else {
+            rc = unsafe {
+                librpm_sys::headerGet(
+                    self.0,
+                    tag as i32,
+                    &mut td,
+                    
+                    librpm_sys::headerGetFlags_e_HEADERGET_MINMEM,
+                    )
+            };
+        }
+        
 
         if rc == 0 {
             return None;
@@ -61,10 +74,21 @@ impl Header {
             version: self.get(Tag::VERSION).unwrap().as_str().unwrap().to_owned(),
             release: self.get(Tag::RELEASE).unwrap().as_str().unwrap().to_owned(),
             arch: self.get(Tag::ARCH).map(|d| d.as_str().unwrap().to_owned()),
+            installtime: self.get(Tag::INSTALLTIME).unwrap().to_int32(),
+            group: self.get(Tag::GROUP).unwrap().as_str().unwrap().into(),
+            size: self.get(Tag::LONGSIZE).map(|d|d.to_int64().unwrap().to_owned()),
             license: self.get(Tag::LICENSE).unwrap().as_str().unwrap().to_owned(),
+            signature: self.get(Tag::DSAHEADER).map(|d|d.as_str().unwrap().to_owned()),
+            sourcerpm: self.get(Tag::SOURCERPM).unwrap().as_str().unwrap().into(),
             summary: self.get(Tag::SUMMARY).unwrap().as_str().unwrap().into(),
             description: self.get(Tag::DESCRIPTION).unwrap().as_str().unwrap().into(),
             buildtime: self.get(Tag::BUILDTIME).unwrap().to_int32().unwrap(),
+            buildhost: self.get(Tag::BUILDHOST).unwrap().as_str().unwrap().into(),
+            relocations: self.get(Tag::PREFIXES).map(|d|d.as_str().unwrap().to_owned()),
+            packager: self.get(Tag::PACKAGER).map(|d|d.as_str().unwrap().to_owned()),
+            vendor: self.get(Tag::VENDOR).map(|d|d.as_str().unwrap().to_owned()),
+            url: self.get(Tag::URL).map(|d|d.as_str().unwrap().to_owned()),
+            bugurl: self.get(Tag::BUGURL).map(|d|d.as_str().unwrap().to_owned()),
         }
     }
 }

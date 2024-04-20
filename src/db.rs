@@ -35,7 +35,7 @@ pub fn installed_packages() -> Iter {
 }
 
 pub fn find_package<S: AsRef<str>>(key: S) -> Iter {
-    Iter(MatchIterator::new(DBIndexTag::LABEL, Some(key.as_ref())))
+    Iter(MatchIterator::new(DBIndexTag::NAME, Some(key.as_ref())))
 }
 
 /// Find installed packages with a search key that exactly matches the given tag.

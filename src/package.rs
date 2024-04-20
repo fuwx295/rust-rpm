@@ -4,15 +4,26 @@ use std::{fmt, time};
 /// RPM packages
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Package {
-    pub(crate) name: String,
-    pub(crate) epoch: Option<i32>,
-    pub(crate) version: String,
-    pub(crate) release: String,
-    pub(crate) arch: Option<String>,
-    pub(crate) license: String,
-    pub(crate) summary: String,
-    pub(crate) description: String,
-    pub(crate) buildtime: i32,
+    pub name: String,
+    pub epoch: Option<i32>,
+    pub version: String,
+    pub release: String,
+    pub arch: Option<String>,
+    pub installtime: Option<i32>,
+    pub group: String,
+    pub size: Option<i64>,
+    pub license: String,
+    pub signature: Option<String>,
+    pub sourcerpm: String,
+    pub buildtime: i32,
+    pub buildhost: String,
+    pub relocations: Option<String>,
+    pub packager: Option<String>,
+    pub vendor: Option<String>,
+    pub url: Option<String>,
+    pub bugurl: Option<String>,
+    pub summary: String,
+    pub description: String,
 }
 
 impl Package {

@@ -9,6 +9,7 @@ edition = "2021"
 once_cell = "1.19.0"
 streaming-iterator = "0.1.9"
 librpm-sys = { path = "librpm-sys" }
+clap = { version = "4.5.4", features = ["derive"] }
 
 [features]
 librpm-4-14 = []
