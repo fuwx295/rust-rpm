@@ -1,29 +1,33 @@
+use super::ts::TransactionSet;
+use once_cell::sync::Lazy;
 use std::sync::{Mutex, MutexGuard};
 
-use once_cell::sync::Lazy;
+static RPM_GLOBAL_STATE: Lazy<Mutex<GlobalState>> =
+    Lazy::new(|| Mutex::new(GlobalState::default()));
 
-use super::ts::TransactionSet;
-
-
-
-
-
-static RPM_GLOBAL_STATE: Lazy<Mutex<GlobalState>> = Lazy::new(||Mutex::new(GlobalState::default()));
-
-
+/// Tracking struct for mutable global state in RPM
 pub struct GlobalState {
+    /// Have any configuration functions been called? (Specifically any ones
+    /// which invoke `rpmInitCrypto`, which it seems should only be called once)
     pub configured: bool,
+
+    /// Global shared transaction set created the first time librpm's global
+    /// state is accessed.
     pub ts: TransactionSet,
 }
 
 impl Default for GlobalState {
-    fn default() -> Self {
-        GlobalState { configured: false, ts: TransactionSet::create() }
+    fn default() -> GlobalState {
+        GlobalState {
+            configured: false,
+            ts: TransactionSet::create(),
+        }
     }
 }
 
 impl GlobalState {
-    pub fn lock()-> MutexGuard<'static, Self> {
+    /// Obtain an exclusive lock to the global state
+    pub fn lock() -> MutexGuard<'static, Self> {
         RPM_GLOBAL_STATE.lock().unwrap()
     }
 }

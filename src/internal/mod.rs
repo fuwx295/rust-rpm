@@ -1,8 +1,8 @@
-mod header;
-mod tag;
-mod td;
-mod iterator;
-mod ts;
-mod global_state;
+pub mod global_state;
+pub mod header;
+pub mod iterator;
+pub mod tag;
+pub mod td;
+pub mod ts;
 
-pub use iterator::MatchIterator;
+pub use global_state::GlobalState;
