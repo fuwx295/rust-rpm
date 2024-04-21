@@ -1,3 +1,5 @@
+use crate::internal::tag::Tag;
+
 use super::tag::TagType;
 use std::ffi::CStr;
 use std::os::raw::c_char;
@@ -28,7 +30,7 @@ pub(crate) enum TagData<'hdr> {
     Str(&'hdr str),
 
     /// String array
-    StrArray(Vec<&'hdr str>),
+    StrArray(Vec<String>),
 
     /// Internationalized string (UTF-8?)
     I18NStr(&'hdr str),
@@ -88,8 +90,29 @@ impl<'hdr> TagData<'hdr> {
     }
 
     /// Convert an `rpmtd_s` into a `StrArray`
-    pub(crate) unsafe fn string_array(_td: &librpm_sys::rpmtd_s) -> Self {
-        panic!("RPM_STRING_ARRAY_TYPE unsupported!");
+    pub(crate) unsafe fn string_array(td: &librpm_sys::rpmtd_s) -> Self {
+        assert_eq!(td.type_, TagType::STRING_ARRAY as u32);
+        let cstr_array_ptr = td.data as *const *const char;
+        //librpm_sys::rpmtdNextString(td);
+        let mut strings = Vec::new();
+        //let mut idx = 0;
+        for idx in 0..td.count {
+            let cstr_ptr = *cstr_array_ptr.offset(idx as isize);
+            if cstr_ptr.is_null() {
+                break;
+            }
+            let cstr = CStr::from_ptr(cstr_ptr as * const c_char);
+            let string = match str::from_utf8(cstr.to_bytes()) {
+                Ok(s) => s.to_string(),
+                Err(e) => panic!(
+                    "failed to decode RPM_STRING_ARRAY_TYPE as UTF-8 (tag: {}): {}",
+                    td.tag, e
+                ),
+            };
+            strings.push(string) ;
+        }
+        TagData::StrArray(strings)
+        //panic!("RPM_STRING_ARRAY_TYPE unsupported!");
     }
 
     /// Convert an `rpmtd_s` into an `I18NStr`
@@ -214,7 +237,7 @@ impl<'hdr> TagData<'hdr> {
     }
 
     /// Obtain a slice of string references, if this value is a string array
-    pub fn as_str_array(&self) -> Option<&[&'hdr str]> {
+    pub fn as_str_array(&self) -> Option<&[String]> {
         match *self {
             TagData::StrArray(ref sa) => Some(&sa[..]),
             _ => None,

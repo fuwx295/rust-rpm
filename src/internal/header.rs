@@ -20,27 +20,18 @@ impl Header {
         unsafe {
             librpm_sys::rpmtdReset(&mut td);
         }
-        let rc;
-        if tag == Tag::LONGSIZE || tag == Tag::REQUIRENEVRS {
-            rc = unsafe {
-                librpm_sys::headerGet(
-                    self.0,
-                    Tag::LONGFILESIZES as i32,
-                    &mut td,
-                    librpm_sys::headerGetFlags_e_HEADERGET_ARGV,
-                )
-            };
-        } else {
-            rc = unsafe {
+        let mut flags = librpm_sys::headerGetFlags_e_HEADERGET_MINMEM;
+        // if tag == Tag::REQUIRENAME {
+        //     flags |= librpm_sys::headerGetFlags_e_HEADERGET_ALLOC;
+        // }
+        let rc = unsafe {
                 librpm_sys::headerGet(
                     self.0,
                     tag as i32,
                     &mut td,
-                    
-                    librpm_sys::headerGetFlags_e_HEADERGET_MINMEM,
+                    flags,
                     )
             };
-        }
         
         if rc == 0 {
             return None;
@@ -75,7 +66,7 @@ impl Header {
             arch: self.get(Tag::ARCH).map(|d| d.as_str().unwrap().to_owned()),
             installtime: self.get(Tag::INSTALLTIME).unwrap().to_int32(),
             group: self.get(Tag::GROUP).unwrap().as_str().unwrap().into(),
-            size: self.get(Tag::LONGSIZE).map(|d|d.to_int64().unwrap().to_owned()),
+            size: self.get(Tag::SIZE).map(|d|d.to_int32().unwrap().to_owned()),
             license: self.get(Tag::LICENSE).unwrap().as_str().unwrap().to_owned(),
             signature: self.get(Tag::DSAHEADER).map(|d|d.as_str().unwrap().to_owned()),
             sourcerpm: self.get(Tag::SOURCERPM).unwrap().as_str().unwrap().into(),
@@ -88,7 +79,7 @@ impl Header {
             vendor: self.get(Tag::VENDOR).map(|d|d.as_str().unwrap().to_owned()),
             url: self.get(Tag::URL).map(|d|d.as_str().unwrap().to_owned()),
             bugurl: self.get(Tag::BUGURL).map(|d|d.as_str().unwrap().to_owned()),
-            requirenevrs: self.get(Tag::REQUIRENEVRS).map(|d|d.as_str().unwrap().to_owned()),
+            requirenevrs: self.get(Tag::CHANGELOGTEXT).map(|d|d.as_str_array().unwrap().to_owned()),
         }
     }
 }

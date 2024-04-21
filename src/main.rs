@@ -7,12 +7,14 @@ fn main() {
     let cli = Cli::parse();
     config::read_file(None).unwrap(); 
 
-    let keys;
+    let mut keys = Vec::new();
     match &cli.command {
         Commands::Name(name) => {
-            keys = name.name.clone();
-        }
+            keys.extend(name.name.clone())
+        },
+        Commands::File(file) => (),
     }
+
     for key in keys {
         let found_packages: Vec<Package> = find_package(key.clone()).collect();
         if found_packages.len() == 0 {

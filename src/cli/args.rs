@@ -12,11 +12,17 @@ pub struct Cli {
 }
 #[derive(Subcommand)]
 pub enum Commands {
-    Name(Name),
+    Name(PackageName),
+    File(FileName),
 }
 
 
 #[derive(Args, Clone)]
-pub struct Name {
+pub struct PackageName {
     pub name: Vec<String>
+}
+
+#[derive(Args, Clone)]
+pub struct FileName {
+    pub files: Vec<String>
 }

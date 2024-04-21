@@ -11,7 +11,7 @@ pub struct Package {
     pub arch: Option<String>,
     pub installtime: Option<i32>,
     pub group: String,
-    pub size: Option<i64>,
+    pub size: Option<i32>,
     pub license: String,
     pub signature: Option<String>,
     pub sourcerpm: String,
@@ -24,7 +24,7 @@ pub struct Package {
     pub bugurl: Option<String>,
     pub summary: String,
     pub description: String,
-    pub requirenevrs: Option<String>
+    pub requirenevrs: Option<Vec<String>>,
 }
 
 impl Package {
