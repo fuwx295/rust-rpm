@@ -20,16 +20,13 @@ impl Header {
         unsafe {
             librpm_sys::rpmtdReset(&mut td);
         }
-        let mut flags = librpm_sys::headerGetFlags_e_HEADERGET_MINMEM;
-        // if tag == Tag::REQUIRENAME {
-        //     flags |= librpm_sys::headerGetFlags_e_HEADERGET_ALLOC;
-        // }
+        
         let rc = unsafe {
                 librpm_sys::headerGet(
                     self.0,
                     tag as i32,
                     &mut td,
-                    flags,
+                    librpm_sys::headerGetFlags_e_HEADERGET_MINMEM,
                     )
             };
         

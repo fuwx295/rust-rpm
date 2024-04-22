@@ -4,15 +4,18 @@ use clap::{Parser, Args, Subcommand};
 #[command(version, about, long_about = None)]
 #[command(propagate_version = true)]
 pub struct Cli {
-    #[command(subcommand)]
-    pub command: Commands,
+    /// query all/info/changelog/require
+    #[arg(short, long)]
+    pub query: char,
 
-    // #[arg(short, long, default_value_t = 1)]
-    // count: u8,
+    #[command(subcommand)]
+    pub command: Option<Commands>,
 }
 #[derive(Subcommand)]
 pub enum Commands {
+    /// package name
     Name(PackageName),
+    /// package filepath
     File(FileName),
 }
 

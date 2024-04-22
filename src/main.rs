@@ -7,12 +7,20 @@ fn main() {
     let cli = Cli::parse();
     config::read_file(None).unwrap(); 
 
+    println!("{}", cli.query);
     let mut keys = Vec::new();
     match &cli.command {
-        Commands::Name(name) => {
-            keys.extend(name.name.clone())
-        },
-        Commands::File(file) => (),
+        Some(cmd) => {
+            match cmd {
+                Commands::Name(name) => {
+                    keys.extend(name.name.clone())
+                },
+                Commands::File(file) => (),
+            }
+            
+        }
+        None => (),
+        
     }
 
     for key in keys {
