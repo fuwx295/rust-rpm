@@ -52,7 +52,7 @@ impl Header {
     }
 
     /// Convert this `Header` into a `Package`
-    pub fn to_package(&self) -> Package {
+    pub fn to_package(&self, mode: char) -> Package {
         Package {
             name: self.get(Tag::NAME).unwrap().as_str().unwrap().to_owned(),
             epoch: self
@@ -61,9 +61,9 @@ impl Header {
             version: self.get(Tag::VERSION).unwrap().as_str().unwrap().to_owned(),
             release: self.get(Tag::RELEASE).unwrap().as_str().unwrap().to_owned(),
             arch: self.get(Tag::ARCH).map(|d| d.as_str().unwrap().to_owned()),
-            installtime: self.get(Tag::INSTALLTIME).unwrap().to_int32(),
+            installtime: self.get(Tag::INSTALLTIME).unwrap().to_int32().unwrap(),
             group: self.get(Tag::GROUP).unwrap().as_str().unwrap().into(),
-            size: self.get(Tag::SIZE).map(|d|d.to_int32().unwrap().to_owned()),
+            size: self.get(Tag::SIZE).unwrap().to_int32().unwrap() as i64,
             license: self.get(Tag::LICENSE).unwrap().as_str().unwrap().to_owned(),
             signature: self.get(Tag::DSAHEADER).map(|d|d.as_str().unwrap().to_owned()),
             sourcerpm: self.get(Tag::SOURCERPM).unwrap().as_str().unwrap().into(),
