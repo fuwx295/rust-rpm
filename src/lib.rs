@@ -8,7 +8,7 @@ pub mod config;
 pub mod db;
 
 /// Internal functionality not to be exposed outside of this crate
-mod internal;
+pub mod internal;
 
 /// Macros are RPM's configuration system
 pub mod macro_context;
@@ -19,3 +19,4 @@ pub mod package;
 pub use self::{db::Index, error::Error, macro_context::MacroContext, package::Package};
 
 pub mod cli;
+pub mod query;
