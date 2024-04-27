@@ -1,5 +1,3 @@
-use crate::internal::tag::Tag;
-
 use super::tag::TagType;
 use std::ffi::CStr;
 use std::os::raw::c_char;

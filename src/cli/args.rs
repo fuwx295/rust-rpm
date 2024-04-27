@@ -4,7 +4,7 @@ use clap::{Parser, Args, Subcommand};
 #[command(version, about, long_about = None)]
 #[command(propagate_version = true)]
 pub struct Cli {
-    /// query all/info/changelog/require
+    /// query base/all/info/changelog/require
     #[arg(short, long)]
     pub query: char,
 

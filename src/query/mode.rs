@@ -1,12 +1,6 @@
-use crate::{cli::{Cli, Commands}, db::{installed_packages, find_package}};
-
-
-
-
-
+use crate::{cli::{Cli, Commands}, rpm::db::{installed_packages, find_package}};
 
 pub struct QueryMode {
-    pub mode: char,
 }
 
 impl QueryMode {
@@ -15,7 +9,7 @@ impl QueryMode {
         let mut keys: Vec<String> = Vec::new();
         match cli.query {
             'a' =>  {
-                pkgs = installed_packages().collect()
+                pkgs = installed_packages(cli.query).collect()
             },
             _ => {
             match &cli.command {
@@ -24,7 +18,7 @@ impl QueryMode {
                         Commands::Name(name) => {
                                 keys.extend(name.name.clone());
                                 for key in keys.iter() {
-                                    pkgs = find_package(key.clone()).collect();
+                                    pkgs = find_package(key.clone(), cli.query).collect();
                                 }
                             },
                         Commands::File(file) => (),
@@ -37,9 +31,20 @@ impl QueryMode {
 
         if pkgs.len() == 0 {
             println!("package {:?} is not install", keys);
+            return;
         } 
-        for package in pkgs {
-            println!("{}", package);
+        match &cli.query {
+            'i' => {
+                for package in pkgs {
+                    println!("{:#?}", package);
+                }
+            }
+            _ => {
+                for package in pkgs {
+                    println!("{}", package);
+                }
+            }
         }
+        
     }
 }

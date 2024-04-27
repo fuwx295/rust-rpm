@@ -1,7 +1,7 @@
 
 
 use clap::Parser;
-use rust_rpm::{cli, config, query};
+use rust_rpm::{cli, rpm::config, query};
 fn main() {
     //println!("Hello, world!");
     let cli = cli::Cli::parse();

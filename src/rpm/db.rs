@@ -1,6 +1,6 @@
-use crate::internal::iterator::MatchIterator;
-use crate::internal::tag::DBIndexTag;
-use crate::package::Package;
+use crate::rpm::internal::iterator::MatchIterator;
+use super::internal::tag::DBIndexTag;
+use super::package::Package;
 use streaming_iterator::StreamingIterator;
 
 /// Iterator over the RPM database which returns `Package` structs.
@@ -36,17 +36,17 @@ impl Index {
 }
 
 /// Find all packages installed on the local system.
-pub fn installed_packages() -> Iter {
+pub fn installed_packages(mode: char) -> Iter {
     Iter {
        match_it: MatchIterator::new(DBIndexTag::PACKAGES, None),
-       mode: 'a',
+       mode,
     }
 }
 
-pub fn find_package<S: AsRef<str>>(key: S) -> Iter {
+pub fn find_package<S: AsRef<str>>(key: S, mode: char) -> Iter {
     Iter {
         match_it: MatchIterator::new(DBIndexTag::NAME, Some(key.as_ref())),
-        mode: 'i',
+        mode,
     }
 }
 

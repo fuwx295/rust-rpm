@@ -1,5 +1,5 @@
 
-use crate::error::{Error, ErrorKind};
+use super::error::{Error, ErrorKind};
 use librpm_sys;
 use std::ffi::CString;
 

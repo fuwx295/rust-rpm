@@ -1,4 +1,4 @@
-use crate::Index;
+use crate::rpm::Index;
 
 /// Identifiers for data in RPM headers (`rpmTag_e` in librpm)
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]

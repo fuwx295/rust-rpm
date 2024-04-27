@@ -1,6 +1,6 @@
-use crate::error::{Error, ErrorKind};
-use crate::internal::GlobalState;
-use crate::macro_context::MacroContext;
+use super::error::{Error, ErrorKind};
+use super::internal::GlobalState;
+use super::macro_context::MacroContext;
 use librpm_sys;
 use std::ffi::CString;
 use std::os::unix::ffi::OsStrExt;

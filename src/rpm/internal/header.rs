@@ -1,5 +1,5 @@
 use super::{tag::Tag, td::TagData};
-use crate::Package;
+use crate::rpm::Package;
 use std::mem;
 
 /// RPM package header

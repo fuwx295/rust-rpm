@@ -60,7 +60,7 @@ impl Display for ErrorKind {
 /// Create a new error (of a given enum variant) with a formatted message
 macro_rules! format_err {
     ($kind:path, $msg:expr) => {
-        $crate::error::Error::new($kind, Some($msg.to_string()))
+        $crate::rpm::error::Error::new($kind, Some($msg.to_string()))
     };
     ($kind:path, $fmt:expr, $($arg:tt)+) => {
         format_err!($kind, &format!($fmt, $($arg)+))
