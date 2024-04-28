@@ -35,11 +35,22 @@ impl QueryMode {
                     println!("{:#?}", package);
                 }
             }
-            _ => {
+            'b' => {
                 for package in pkgs {
                     println!("{}", package);
                 }
             }
+            'c' => {
+                for package in pkgs {
+                    println!("{:#?}", package.changelogs);
+                }
+            }
+            'r' => {
+                for package in pkgs {
+                    println!("{:#?}", package.requirenevrs);
+                }
+            }
+            _ => {}
         }
     }
 }

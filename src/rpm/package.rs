@@ -25,6 +25,7 @@ pub struct Package {
     pub summary: String,
     pub description: String,
     pub requirenevrs: Option<Vec<String>>,
+    pub changelogs: Option<Vec<String>>,
 }
 
 impl Package {

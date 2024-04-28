@@ -85,49 +85,18 @@ impl Header {
                     pkg.description = self.get(Tag::DESCRIPTION).unwrap().as_str().unwrap().into();
                 }
             }
-            'c' => {}
-            'r' => {}
+            'c' => {
+                pkg.changelogs = self
+                    .get(Tag::CHANGELOGTEXT)
+                    .map(|d| d.as_str_array().unwrap().to_owned());
+            }
+            'r' => {
+                pkg.requirenevrs = self
+                    .get(Tag::REQUIRENAME)
+                    .map(|d| d.as_str_array().unwrap().to_owned());
+            }
             _ => {}
         }
-
-        // Package {
-        //     name: self.get(Tag::NAME).unwrap().as_str().unwrap().to_owned(),
-        //     epoch: self
-        //         .get(Tag::EPOCH)
-        //         .map(|d| d.to_int32().unwrap().to_owned()),
-        //     version: self.get(Tag::VERSION).unwrap().as_str().unwrap().to_owned(),
-        //     release: self.get(Tag::RELEASE).unwrap().as_str().unwrap().to_owned(),
-        //     arch: self.get(Tag::ARCH).map(|d| d.as_str().unwrap().to_owned()),
-        //     installtime: self.get(Tag::INSTALLTIME).unwrap().to_int32().unwrap(),
-        //     group: self.get(Tag::GROUP).unwrap().as_str().unwrap().into(),
-        //     size: self.get(Tag::SIZE).unwrap().to_int32().unwrap() as i64,
-        //     license: self.get(Tag::LICENSE).unwrap().as_str().unwrap().to_owned(),
-        //     signature: self
-        //         .get(Tag::DSAHEADER)
-        //         .map(|d| d.as_str().unwrap().to_owned()),
-        //     sourcerpm: self.get(Tag::SOURCERPM).unwrap().as_str().unwrap().into(),
-        //     summary: self.get(Tag::SUMMARY).unwrap().as_str().unwrap().into(),
-        //     description: self.get(Tag::DESCRIPTION).unwrap().as_str().unwrap().into(),
-        //     buildtime: self.get(Tag::BUILDTIME).unwrap().to_int32().unwrap(),
-        //     buildhost: self.get(Tag::BUILDHOST).unwrap().as_str().unwrap().into(),
-        //     // relocations: self
-        //     //     .get(Tag::PREFIXES)
-        //     //     .map(|d| d.as_str_array().unwrap().to_owned()),
-        //     relocations: None,
-        //     packager: self
-        //         .get(Tag::PACKAGER)
-        //         .map(|d| d.as_str().unwrap().to_owned()),
-        //     vendor: self
-        //         .get(Tag::VENDOR)
-        //         .map(|d| d.as_str().unwrap().to_owned()),
-        //     url: self.get(Tag::URL).map(|d| d.as_str().unwrap().to_owned()),
-        //     bugurl: self
-        //         .get(Tag::BUGURL)
-        //         .map(|d| d.as_str().unwrap().to_owned()),
-        //     requirenevrs: self
-        //         .get(Tag::CHANGELOGTEXT)
-        //         .map(|d| d.as_str_array().unwrap().to_owned()),
-        // }
         pkg
     }
 }
