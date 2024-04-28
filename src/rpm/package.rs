@@ -9,9 +9,9 @@ pub struct Package {
     pub version: String,
     pub release: String,
     pub arch: Option<String>,
-    pub installtime: Option<i32>,
+    pub installtime: i32,
     pub group: String,
-    pub size: Option<i64>,
+    pub size: i64,
     pub license: String,
     pub signature: Option<String>,
     pub sourcerpm: String,
@@ -24,7 +24,7 @@ pub struct Package {
     pub bugurl: Option<String>,
     pub summary: String,
     pub description: String,
-    pub requirenevrs: Option<String>
+    pub requirenevrs: Option<Vec<String>>,
 }
 
 impl Package {
