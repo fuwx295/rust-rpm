@@ -2,7 +2,7 @@ use std::convert::TryFrom;
 use std::{fmt, time};
 
 /// RPM packages
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Package {
     pub name: String,
     pub epoch: Option<i32>,

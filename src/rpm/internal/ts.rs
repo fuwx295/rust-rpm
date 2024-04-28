@@ -48,7 +48,7 @@ impl GlobalTS {
     }
 
     /// Obtain the internal pointer to the transaction set
-    pub(crate) fn as_mut_ptr(&mut self) -> *mut librpm_sys::rpmts_s {
+    pub fn as_mut_ptr(&mut self) -> *mut librpm_sys::rpmts_s {
         // Since we're guaranteed to be holding the GlobalState mutex here,
         // we're free to deref the pointer.
         *self.0.ts.as_mut_ptr()

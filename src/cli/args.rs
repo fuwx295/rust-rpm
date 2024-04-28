@@ -1,13 +1,18 @@
-use clap::{Parser, Args, Subcommand};
+use clap::{Args, Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 #[command(propagate_version = true)]
 pub struct Cli {
-    /// query base/all/info/changelog/require
+    /// queryformat base/info/changelog/require
     #[arg(short, long)]
     pub query: char,
 
+    /// query all packages
+    #[arg(short, long)]
+    pub all: bool,
+
+    /// query package by name or local
     #[command(subcommand)]
     pub command: Option<Commands>,
 }
@@ -19,13 +24,12 @@ pub enum Commands {
     File(FileName),
 }
 
-
 #[derive(Args, Clone)]
 pub struct PackageName {
-    pub name: Vec<String>
+    pub name: Vec<String>,
 }
 
 #[derive(Args, Clone)]
 pub struct FileName {
-    pub files: Vec<String>
+    pub files: Vec<String>,
 }
