@@ -1,5 +1,5 @@
 use super::{tag::Tag, td::TagData};
-use crate::rpm::Package;
+use crate::rpm::{Package, package::{Changelog, Require, Provide}};
 use std::mem;
 
 /// RPM package header
@@ -20,20 +20,19 @@ impl Header {
         unsafe {
             librpm_sys::rpmtdReset(&mut td);
         }
-        
+
         let rc = unsafe {
-                librpm_sys::headerGet(
-                    self.0,
-                    tag as i32,
-                    &mut td,
-                    librpm_sys::headerGetFlags_e_HEADERGET_MINMEM,
-                    )
-            };
-        
+            librpm_sys::headerGet(
+                self.0,
+                tag as i32,
+                &mut td,
+                librpm_sys::headerGetFlags_e_HEADERGET_MINMEM,
+            )
+        };
+
         if rc == 0 {
             return None;
         }
-
         let data = match td.type_ {
             librpm_sys::rpmTagType_e_RPM_NULL_TYPE => TagData::Null,
             librpm_sys::rpmTagType_e_RPM_CHAR_TYPE => unsafe { TagData::char(&td) },
@@ -53,31 +52,69 @@ impl Header {
 
     /// Convert this `Header` into a `Package`
     pub fn to_package(&self, mode: char) -> Package {
-        Package {
-            name: self.get(Tag::NAME).unwrap().as_str().unwrap().to_owned(),
-            epoch: self
-                .get(Tag::EPOCH)
-                .map(|d| d.to_int32().unwrap().to_owned()),
-            version: self.get(Tag::VERSION).unwrap().as_str().unwrap().to_owned(),
-            release: self.get(Tag::RELEASE).unwrap().as_str().unwrap().to_owned(),
-            arch: self.get(Tag::ARCH).map(|d| d.as_str().unwrap().to_owned()),
-            installtime: self.get(Tag::INSTALLTIME).unwrap().to_int32().unwrap(),
-            group: self.get(Tag::GROUP).unwrap().as_str().unwrap().into(),
-            size: self.get(Tag::SIZE).unwrap().to_int32().unwrap() as i64,
-            license: self.get(Tag::LICENSE).unwrap().as_str().unwrap().to_owned(),
-            signature: self.get(Tag::DSAHEADER).map(|d|d.as_str().unwrap().to_owned()),
-            sourcerpm: self.get(Tag::SOURCERPM).unwrap().as_str().unwrap().into(),
-            summary: self.get(Tag::SUMMARY).unwrap().as_str().unwrap().into(),
-            description: self.get(Tag::DESCRIPTION).unwrap().as_str().unwrap().into(),
-            buildtime: self.get(Tag::BUILDTIME).unwrap().to_int32().unwrap(),
-            buildhost: self.get(Tag::BUILDHOST).unwrap().as_str().unwrap().into(),
-            relocations: self.get(Tag::PREFIXES).map(|d|d.as_str().unwrap().to_owned()),
-            packager: self.get(Tag::PACKAGER).map(|d|d.as_str().unwrap().to_owned()),
-            vendor: self.get(Tag::VENDOR).map(|d|d.as_str().unwrap().to_owned()),
-            url: self.get(Tag::URL).map(|d|d.as_str().unwrap().to_owned()),
-            bugurl: self.get(Tag::BUGURL).map(|d|d.as_str().unwrap().to_owned()),
-            requirenevrs: self.get(Tag::CHANGELOGTEXT).map(|d|d.as_str_array().unwrap().to_owned()),
+        let mut pkg = Package::default();
+
+        match mode {
+            'b' | 'i' => {
+                pkg.name = self.get(Tag::NAME).unwrap().as_str().unwrap().to_string();
+                pkg.epoch = self
+                    .get(Tag::EPOCH)
+                    .map(|d| d.to_int32().unwrap().to_owned());
+                pkg.version = self.get(Tag::VERSION).unwrap().as_str().unwrap().to_owned();
+                pkg.release = self.get(Tag::RELEASE).unwrap().as_str().unwrap().to_owned();
+                pkg.arch = self.get(Tag::ARCH).map(|d| d.as_str().unwrap().to_owned());
+                if mode == 'i' {
+                    pkg.installtime = self.get(Tag::INSTALLTIME).unwrap().to_int32().unwrap();
+                    pkg.group = self.get(Tag::GROUP).unwrap().as_str().unwrap().into();
+                    pkg.size = self.get(Tag::SIZE).unwrap().to_int32().unwrap() as i64;
+                    pkg.license = self.get(Tag::LICENSE).unwrap().as_str().unwrap().to_owned();
+                    pkg.signature = None;
+                    pkg.sourcerpm = self.get(Tag::SOURCERPM).unwrap().as_str().unwrap().into();
+                    pkg.buildtime = self.get(Tag::BUILDTIME).unwrap().to_int32().unwrap();
+                    pkg.buildhost = self.get(Tag::BUILDHOST).unwrap().as_str().unwrap().into();
+                    pkg.relocations = None;
+                    pkg.packager = self
+                        .get(Tag::PACKAGER)
+                        .map(|d| d.as_str().unwrap().to_owned());
+                    pkg.vendor = self
+                        .get(Tag::VENDOR)
+                        .map(|d| d.as_str().unwrap().to_owned());
+                    pkg.url = self.get(Tag::URL).map(|d| d.as_str().unwrap().to_owned());
+                    pkg.summary = self.get(Tag::SUMMARY).unwrap().as_str().unwrap().into();
+                    pkg.description = self.get(Tag::DESCRIPTION).unwrap().as_str().unwrap().into();
+                }
+            }
+            'c' => {
+                let changelog = Changelog {
+                    changelognames: self.get(Tag::CHANGELOGNAME).map(|d| d.as_str_array().unwrap().to_owned()),
+                    changelogtimes: self.get(Tag::CHANGELOGTIME).map(|d| d.to_int32_arr().unwrap().to_owned()),
+                    changelogtexts: self.get(Tag::CHANGELOGTEXT).map(|d| d.as_str_array().unwrap().to_owned()),
+                };
+                pkg.changelog = Some(changelog);
+            }
+            'r' => {
+                let require = Require {
+                    requirename: self
+                    .get(Tag::REQUIRENAME)
+                    .map(|d| d.as_str_array().unwrap().to_owned()),
+                    requireflags: self.get(Tag::REQUIREFLAGS).map(|d|d.to_dependency().unwrap().to_owned()),
+                    requireversion: self.get(Tag::REQUIREVERSION).map(|d|d.as_str_array().unwrap().to_owned()),
+                };
+                pkg.require = Some(require); 
+            }
+            'p' => {
+                let provide = Provide {
+                    providenames: self
+                    .get(Tag::PROVIDENAME)
+                    .map(|d|d.as_str_array().unwrap().to_owned()),
+                    provideflags: self.get(Tag::PROVIDEFLAGS).map(|d|d.to_dependency().unwrap().to_owned()),
+                    provideverions: self.get(Tag::PROVIDEVERSION).map(|d|d.as_str_array().unwrap().to_owned()),
+                };
+                pkg.provide = Some(provide);
+            }
+            _ => {}
         }
+        pkg
     }
 }
 

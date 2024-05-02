@@ -1,11 +1,11 @@
-use super::tag::TagType;
+use super::tag::{TagType, DependencyFlag};
 use std::ffi::CStr;
 use std::os::raw::c_char;
 use std::{slice, str};
 
 /// Data found in RPM headers, associated with a particular `Tag` value.
 #[derive(Debug)]
-pub(crate) enum TagData<'hdr> {
+pub enum TagData<'hdr> {
     /// No data associated with this tag
     Null,
 
@@ -20,6 +20,8 @@ pub(crate) enum TagData<'hdr> {
 
     /// 32-bit integer
     Int32(i32),
+    
+    Int32Array(Vec<i32>),
 
     /// 64-bit integer
     Int64(i64),
@@ -39,42 +41,52 @@ pub(crate) enum TagData<'hdr> {
 
 impl<'hdr> TagData<'hdr> {
     /// Convert an `rpmtd_s` into a `TagData::Char`
-    pub(crate) unsafe fn char(td: &librpm_sys::rpmtd_s) -> Self {
+    pub unsafe fn char(td: &librpm_sys::rpmtd_s) -> Self {
         assert_eq!(td.type_, TagType::CHAR as u32);
         let ix = if td.ix >= 0 { td.ix as isize } else { 0 };
         TagData::Char(*(td.data as *const char).offset(ix))
     }
 
     /// Convert an `rpmtd_s` into an `TagData::Int8`
-    pub(crate) unsafe fn int8(td: &librpm_sys::rpmtd_s) -> Self {
+    pub unsafe fn int8(td: &librpm_sys::rpmtd_s) -> Self {
         assert_eq!(td.type_, TagType::INT8 as u32);
         let ix = if td.ix >= 0 { td.ix as isize } else { 0 };
         TagData::Int8(*(td.data as *const i8).offset(ix))
     }
 
     /// Convert an `rpmtd_s` int an `TagData::Int16`
-    pub(crate) unsafe fn int16(td: &librpm_sys::rpmtd_s) -> Self {
+    pub unsafe fn int16(td: &librpm_sys::rpmtd_s) -> Self {
         assert_eq!(td.type_, TagType::INT16 as u32);
         let ix = if td.ix >= 0 { td.ix as isize } else { 0 };
         TagData::Int16(*(td.data as *const i16).offset(ix))
     }
 
     /// Convert an `rpmtd_s` int an `TagData::Int32`
-    pub(crate) unsafe fn int32(td: &librpm_sys::rpmtd_s) -> Self {
+    pub unsafe fn int32(td: &librpm_sys::rpmtd_s) -> Self {
         assert_eq!(td.type_, TagType::INT32 as u32);
+        
+        if td.count > 1 {
+            let num_ptr = td.data as * const i32;
+            let mut i32array = Vec::new();
+            for idx in 0..td.count {
+                let num = num_ptr.offset(idx as isize);
+                i32array.push(*num);
+            }
+            return TagData::Int32Array(i32array)
+        }
         let ix = if td.ix >= 0 { td.ix as isize } else { 0 };
         TagData::Int32(*(td.data as *const i32).offset(ix))
     }
 
     /// Convert an `rpmtd_s` int an `Int64`
-    pub(crate) unsafe fn int64(td: &librpm_sys::rpmtd_s) -> Self {
+    pub unsafe fn int64(td: &librpm_sys::rpmtd_s) -> Self {
         assert_eq!(td.type_, TagType::INT64 as u32);
         let ix = if td.ix >= 0 { td.ix as isize } else { 0 };
         TagData::Int64(*(td.data as *const i64).offset(ix))
     }
 
     /// Convert an `rpmtd_s` into a `Str`
-    pub(crate) unsafe fn string(td: &librpm_sys::rpmtd_s) -> Self {
+    pub unsafe fn string(td: &librpm_sys::rpmtd_s) -> Self {
         assert_eq!(td.type_, TagType::STRING as u32);
         let cstr = CStr::from_ptr(td.data as *const c_char);
 
@@ -88,7 +100,7 @@ impl<'hdr> TagData<'hdr> {
     }
 
     /// Convert an `rpmtd_s` into a `StrArray`
-    pub(crate) unsafe fn string_array(td: &librpm_sys::rpmtd_s) -> Self {
+    pub unsafe fn string_array(td: &librpm_sys::rpmtd_s) -> Self {
         assert_eq!(td.type_, TagType::STRING_ARRAY as u32);
         let cstr_array_ptr = td.data as *const *const char;
         //librpm_sys::rpmtdNextString(td);
@@ -99,7 +111,7 @@ impl<'hdr> TagData<'hdr> {
             if cstr_ptr.is_null() {
                 break;
             }
-            let cstr = CStr::from_ptr(cstr_ptr as * const c_char);
+            let cstr = CStr::from_ptr(cstr_ptr as *const c_char);
             let string = match str::from_utf8(cstr.to_bytes()) {
                 Ok(s) => s.to_string(),
                 Err(e) => panic!(
@@ -107,14 +119,14 @@ impl<'hdr> TagData<'hdr> {
                     td.tag, e
                 ),
             };
-            strings.push(string) ;
+            strings.push(string);
         }
         TagData::StrArray(strings)
         //panic!("RPM_STRING_ARRAY_TYPE unsupported!");
     }
 
     /// Convert an `rpmtd_s` into an `I18NStr`
-    pub(crate) unsafe fn i18n_string(td: &librpm_sys::rpmtd_s) -> Self {
+    pub unsafe fn i18n_string(td: &librpm_sys::rpmtd_s) -> Self {
         assert_eq!(td.type_, TagType::I18NSTRING as u32);
         let cstr = CStr::from_ptr(td.data as *const c_char);
 
@@ -127,7 +139,7 @@ impl<'hdr> TagData<'hdr> {
     }
 
     /// Convert an `rpmtd_s` into a `Bin`
-    pub(crate) unsafe fn bin(td: &librpm_sys::rpmtd_s) -> Self {
+    pub unsafe fn bin(td: &librpm_sys::rpmtd_s) -> Self {
         assert_eq!(td.type_, TagType::BIN as u32);
 
         assert!(
@@ -197,6 +209,25 @@ impl<'hdr> TagData<'hdr> {
     pub fn to_int32(&self) -> Option<i32> {
         match *self {
             TagData::Int32(i) => Some(i),
+            _ => None,
+        }
+    }
+
+    pub fn to_int32_arr(&self) -> Option<&[i32]> {
+        match self {
+            TagData::Int32Array(i) => Some(i),
+            _ => None,
+        }
+    }
+    pub fn to_dependency(&self) -> Option<Vec<DependencyFlag>> {
+        match self {
+            TagData::Int32Array(i) => {
+                let mut flags = Vec::new();
+                for item in i {
+                    flags.push(DependencyFlag::from_bits_retain(*item as u32));
+                }
+                Some(flags)
+            }
             _ => None,
         }
     }

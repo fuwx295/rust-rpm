@@ -1,8 +1,91 @@
 use std::convert::TryFrom;
 use std::{fmt, time};
 
-/// RPM packages
+use chrono::{DateTime, Utc, TimeZone, Datelike};
+
+use super::internal::tag::DependencyFlag;
+
+pub fn buildtime(time: i32) -> String {
+    let datetime: DateTime<Utc> = Utc.timestamp_opt(time as i64, 0).unwrap();
+    format!("{}", datetime.format("%a %b %d %Y"))
+}
+
+
+
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
+pub struct Require {
+    pub requirename: Option<Vec<String>>,
+    pub requireflags: Option<Vec<DependencyFlag>>,
+    pub requireversion: Option<Vec<String>>,
+}
+
+impl Require {
+    pub fn show(&self) {
+        if let (Some(names), Some(flags), Some(versions)) = (
+            &self.requirename,
+            &self.requireflags,
+            &self.requireversion) {
+            for i in 0..names.len() {
+                match flags[i].symbol() {
+                    None => println!("{} {}", names[i], versions[i]),
+                    Some(flag) => println!("{} {} {}", names[i], flag, versions[i]),
+                }
+            }
+        } else {
+            println!("No Require");
+        }
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+pub struct Changelog {
+    pub changelognames: Option<Vec<String>>,
+    pub changelogtimes: Option<Vec<i32>>,
+    pub changelogtexts: Option<Vec<String>>,
+}
+
+impl Changelog {
+    pub fn show(&self) {
+        if let (Some(names), Some(times), Some(texts)) = (
+            &self.changelognames,
+            &self.changelogtimes,
+            &self.changelogtexts) {
+            for i in 0..names.len() {
+                println!("* {} {}", buildtime(times[i]), names[i]);
+                println!("{}\n", texts[i]);
+            }
+        }
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+pub struct Provide {
+    pub providenames: Option<Vec<String>>,
+    pub provideflags: Option<Vec<DependencyFlag>>,
+    pub provideverions: Option<Vec<String>>,
+}
+
+impl Provide {
+    pub fn show(&self) {
+        if let (Some(names), Some(flags), Some(versions)) = (
+            &self.providenames,
+            &self.provideflags,
+            &self.provideverions) {
+            for i in 0..names.len() {
+                match flags[i].symbol() {
+                    None => println!("{} {}", names[i], versions[i]),
+                    Some(flag) => println!("{} {} {}", names[i], flag, versions[i]),
+                }
+            }
+        } else {
+            println!("No Require");
+        }
+    }
+}
+
+
+/// RPM packages
+#[derive(Default, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Package {
     pub name: String,
     pub epoch: Option<i32>,
@@ -24,7 +107,9 @@ pub struct Package {
     pub bugurl: Option<String>,
     pub summary: String,
     pub description: String,
-    pub requirenevrs: Option<Vec<String>>,
+    pub require: Option<Require>,
+    pub changelog: Option<Changelog>,
+    pub provide: Option<Provide>,
 }
 
 impl Package {
