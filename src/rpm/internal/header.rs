@@ -33,7 +33,6 @@ impl Header {
         if rc == 0 {
             return None;
         }
-        println!("{}", td.type_);
         let data = match td.type_ {
             librpm_sys::rpmTagType_e_RPM_NULL_TYPE => TagData::Null,
             librpm_sys::rpmTagType_e_RPM_CHAR_TYPE => unsafe { TagData::char(&td) },
@@ -98,7 +97,7 @@ impl Header {
                     requirename: self
                     .get(Tag::REQUIRENAME)
                     .map(|d| d.as_str_array().unwrap().to_owned()),
-                    requireflags: self.get(Tag::REQUIREFLAGS).map(|d|d.to_int32_arr().unwrap().to_owned()),
+                    requireflags: self.get(Tag::REQUIREFLAGS).map(|d|d.to_dependency().unwrap().to_owned()),
                     requireversion: self.get(Tag::REQUIREVERSION).map(|d|d.as_str_array().unwrap().to_owned()),
                 };
                 pkg.require = Some(require); 
@@ -108,7 +107,7 @@ impl Header {
                     providenames: self
                     .get(Tag::PROVIDENAME)
                     .map(|d|d.as_str_array().unwrap().to_owned()),
-                    provideflags: self.get(Tag::PROVIDEFLAGS).map(|d|d.to_int32_arr().unwrap().to_owned()),
+                    provideflags: self.get(Tag::PROVIDEFLAGS).map(|d|d.to_dependency().unwrap().to_owned()),
                     provideverions: self.get(Tag::PROVIDEVERSION).map(|d|d.as_str_array().unwrap().to_owned()),
                 };
                 pkg.provide = Some(provide);

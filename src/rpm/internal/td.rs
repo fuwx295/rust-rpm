@@ -1,4 +1,4 @@
-use super::tag::TagType;
+use super::tag::{TagType, DependencyFlag};
 use std::ffi::CStr;
 use std::os::raw::c_char;
 use std::{slice, str};
@@ -216,6 +216,18 @@ impl<'hdr> TagData<'hdr> {
     pub fn to_int32_arr(&self) -> Option<&[i32]> {
         match self {
             TagData::Int32Array(i) => Some(i),
+            _ => None,
+        }
+    }
+    pub fn to_dependency(&self) -> Option<Vec<DependencyFlag>> {
+        match self {
+            TagData::Int32Array(i) => {
+                let mut flags = Vec::new();
+                for item in i {
+                    flags.push(DependencyFlag::from_bits_retain(*item as u32));
+                }
+                Some(flags)
+            }
             _ => None,
         }
     }

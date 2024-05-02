@@ -1,4 +1,46 @@
+use bitflags::bitflags;
+
 use crate::rpm::Index;
+
+
+bitflags! {
+    #[derive(Debug, Clone, Eq, Hash, PartialEq)]
+    pub struct DependencyFlag: u32 {
+        const ANY = 0;
+        const LESS = 1 << 1;
+        const GREATER = 1 << 2;
+        const EQUAL = 1 << 3;
+
+        const LE = Self::LESS.bits() | Self::EQUAL.bits();
+        const GE = Self::GREATER.bits() | Self::EQUAL.bits();
+
+        // // bit 4 unused
+        // const POSTTRANS = 1 << 5;  // %posttrans dependency
+        // const PREREQ = 1 << 6;     // legacy prereq dependency
+        // const PRETRANS = 1 << 7;   // pre-transaction dependency
+        // const INTERP = 1 << 8;     // interpreter used by scriptlet
+        // const SCRIPT_PRE = 1 << 9;  // %pre dependency
+        // const SCRIPT_POST = 1 << 10;  // %post dependency
+        // const SCRIPT_PREUN = 1 << 11;  // %preun dependency
+        // const SCRIPT_POSTUN = 1 << 12;  // %postun dependency
+        // const SCRIPT_VERIFY = 1 << 13;  // %verify dependency
+        // const FIND_REQUIRES = 1 << 14;  // find-requires generated depenency
+        // const FIND_PROVIDES = 1 << 15;  // find-provides generated dependency
+        // const TRIGGERIN = 1 << 16;  // %triggerin dependency
+        // const TRIGGERUN = 1 << 17;  // %triggerun dependency
+        // const TRIGGERPOSTUN = 1 << 18;  // %triggerpostun dependency
+        // const MISSINGOK = 1 << 19;  //suggests/enhances hint
+        // const PREUNTRANS	= 1 << 20;	// %preuntrans dependency
+        // const POSTUNTRANS = 1 << 21;	// %postuntrans dependency
+        // // bits 22-23 unused
+        // const RPMLIB = 1 << 24;	      // rpmlib(feature) dependency.
+        // const TRIGGERPREIN = 1 << 25;  // %triggerprein dependency
+        // const KEYRING	= 1 << 26;
+        // // bit 27 unused
+        // const CONFIG	= 1 << 28;    // config() dependency
+        // const META	= 1 << 29;	      // meta dependency
+    }
+}
 
 /// Identifiers for data in RPM headers (`rpmTag_e` in librpm)
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]

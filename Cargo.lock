@@ -342,6 +342,7 @@ checksum = "adad44e29e4c806119491a7f06f03de4d1af22c3a680dd47f1e6e179439d1f56"
 name = "rust-rpm"
 version = "0.1.0"
 dependencies = [
+ "bitflags",
  "clap",
  "librpm-sys",
  "once_cell",

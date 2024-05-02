@@ -1,17 +1,26 @@
 use std::convert::TryFrom;
 use std::{fmt, time};
 
+use super::internal::tag::DependencyFlag;
+
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Require {
     pub requirename: Option<Vec<String>>,
-    pub requireflags: Option<Vec<i32>>,
+    pub requireflags: Option<Vec<DependencyFlag>>,
     pub requireversion: Option<Vec<String>>,
 }
 
 impl Require {
     pub fn show(&self) {
-        for i in 0..self.requirename.as_ref().unwrap().len() {
-            
+        if let (Some(names), Some(flags), Some(versions)) = (
+            &self.requirename,
+            &self.requireflags,
+            &self.requireversion) {
+            for i in 0..names.len() {
+                println!("{} {:?} {}", names[i], flags[i], versions[i])
+            }
+        } else {
+            println!("No Require");
         }
     }
 }
@@ -26,7 +35,7 @@ pub struct Changelog {
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Provide {
     pub providenames: Option<Vec<String>>,
-    pub provideflags: Option<Vec<i32>>,
+    pub provideflags: Option<Vec<DependencyFlag>>,
     pub provideverions: Option<Vec<String>>,
 }
 

@@ -47,7 +47,9 @@ impl QueryMode {
             }
             'r' => {
                 for package in pkgs {
-                    println!("{:#?}", package.require);
+                    if let Some(requires) = package.require {
+                        requires.show();
+                    }
                 }
             }
             'p' => {
