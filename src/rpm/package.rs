@@ -1,6 +1,35 @@
 use std::convert::TryFrom;
 use std::{fmt, time};
 
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+pub struct Require {
+    pub requirename: Option<Vec<String>>,
+    pub requireflags: Option<Vec<i32>>,
+    pub requireversion: Option<Vec<String>>,
+}
+
+impl Require {
+    pub fn show(&self) {
+        for i in 0..self.requirename.as_ref().unwrap().len() {
+            
+        }
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+pub struct Changelog {
+    pub changelognames: Option<Vec<String>>,
+    pub changelogtimes: Option<Vec<i32>>,
+    pub changelogtexts: Option<Vec<String>>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+pub struct Provide {
+    pub providenames: Option<Vec<String>>,
+    pub provideflags: Option<Vec<i32>>,
+    pub provideverions: Option<Vec<String>>,
+}
+
 /// RPM packages
 #[derive(Default, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Package {
@@ -24,9 +53,9 @@ pub struct Package {
     pub bugurl: Option<String>,
     pub summary: String,
     pub description: String,
-    pub requirenevrs: Option<Vec<String>>,
-    pub changelogs: Option<Vec<String>>,
-    pub provides: Option<Vec<String>>,
+    pub require: Option<Require>,
+    pub changelog: Option<Changelog>,
+    pub provide: Option<Provide>,
 }
 
 impl Package {

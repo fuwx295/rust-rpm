@@ -42,17 +42,17 @@ impl QueryMode {
             }
             'c' => {
                 for package in pkgs {
-                    println!("{:#?}", package.changelogs);
+                    println!("{:#?}", package.changelog);
                 }
             }
             'r' => {
                 for package in pkgs {
-                    println!("{:#?}", package.requirenevrs);
+                    println!("{:#?}", package.require);
                 }
             }
             'p' => {
                 for package in pkgs {
-                    println!("{:#?}", package.provides);
+                    println!("{:#?}", package.provide);
                 }
             }
             _ => {}

@@ -20,6 +20,8 @@ pub enum TagData<'hdr> {
 
     /// 32-bit integer
     Int32(i32),
+    
+    Int32Array(Vec<i32>),
 
     /// 64-bit integer
     Int64(i64),
@@ -62,6 +64,16 @@ impl<'hdr> TagData<'hdr> {
     /// Convert an `rpmtd_s` int an `TagData::Int32`
     pub unsafe fn int32(td: &librpm_sys::rpmtd_s) -> Self {
         assert_eq!(td.type_, TagType::INT32 as u32);
+        
+        if td.count > 1 {
+            let num_ptr = td.data as * const i32;
+            let mut i32array = Vec::new();
+            for idx in 0..td.count {
+                let num = num_ptr.offset(idx as isize);
+                i32array.push(*num);
+            }
+            return TagData::Int32Array(i32array)
+        }
         let ix = if td.ix >= 0 { td.ix as isize } else { 0 };
         TagData::Int32(*(td.data as *const i32).offset(ix))
     }
@@ -197,6 +209,13 @@ impl<'hdr> TagData<'hdr> {
     pub fn to_int32(&self) -> Option<i32> {
         match *self {
             TagData::Int32(i) => Some(i),
+            _ => None,
+        }
+    }
+
+    pub fn to_int32_arr(&self) -> Option<&[i32]> {
+        match self {
+            TagData::Int32Array(i) => Some(i),
             _ => None,
         }
     }
