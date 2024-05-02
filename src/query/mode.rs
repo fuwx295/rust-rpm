@@ -42,7 +42,9 @@ impl QueryMode {
             }
             'c' => {
                 for package in pkgs {
-                    println!("{:#?}", package.changelog);
+                    if let Some(changelog) = package.changelog {
+                        changelog.show();
+                    }
                 }
             }
             'r' => {
@@ -54,7 +56,9 @@ impl QueryMode {
             }
             'p' => {
                 for package in pkgs {
-                    println!("{:#?}", package.provide);
+                    if let Some(provides) = package.provide {
+                        provides.show();
+                    }
                 }
             }
             _ => {}
