@@ -50,6 +50,11 @@ impl QueryMode {
                     println!("{:#?}", package.requirenevrs);
                 }
             }
+            'p' => {
+                for package in pkgs {
+                    println!("{:#?}", package.provides);
+                }
+            }
             _ => {}
         }
     }

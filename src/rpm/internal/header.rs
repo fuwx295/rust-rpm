@@ -95,6 +95,11 @@ impl Header {
                     .get(Tag::REQUIRENAME)
                     .map(|d| d.as_str_array().unwrap().to_owned());
             }
+            'p' => {
+                pkg.provides = self
+                    .get(Tag::PROVIDENAME)
+                    .map(|d|d.as_str_array().unwrap().to_owned());
+            }
             _ => {}
         }
         pkg
