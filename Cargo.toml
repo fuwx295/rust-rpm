@@ -12,6 +12,7 @@ librpm-sys = { path = "librpm-sys" }
 clap = { version = "4.5.4", features = ["derive"] }
 bitflags = "2.5.0"
 chrono = "0.4.38"
+rpm = "0.14.0"
 
 [features]
 librpm-4-14 = []

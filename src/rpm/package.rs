@@ -1,7 +1,8 @@
 use std::convert::TryFrom;
+use std::f32::consts::PI;
 use std::{fmt, time};
 
-use chrono::{DateTime, Utc, TimeZone, Datelike};
+use chrono::{DateTime, Utc, TimeZone};
 
 use super::internal::tag::DependencyFlag;
 
@@ -175,6 +176,38 @@ impl Package {
     pub fn buildtime(&self) -> time::SystemTime {
         let buildtime = u64::try_from(self.buildtime).expect("negative build time");
         time::SystemTime::UNIX_EPOCH + time::Duration::new(buildtime, 0)
+    }
+    fn show_info(&self) {
+        println!("Name: {}", self.name);
+        println!("Epoch: {}", self.epoch.unwrap_or(0));
+        println!("Version: {}", self.version);
+        println!("Release: {}", self.release);
+        println!("Architecture: {}", self.arch.as_deref().unwrap_or("None"));
+        println!("Install Date: {}", buildtime(self.installtime));
+        println!("Group: {}", self.group);
+        println!("Size: {}", self.size);
+        println!("License: {}", self.license);
+        println!("Signature: {}", self.signature.as_deref().unwrap_or("None"));
+        println!("Source RPM: {}", self.sourcerpm);
+        println!("Build Date: {}", buildtime(self.buildtime));
+        println!("Build Host: {}", self.buildhost);
+        println!("Relocations: {}", self.relocations.as_deref().unwrap_or("None"));
+        println!("Packager: {}", self.packager.as_deref().unwrap_or("None"));
+        println!("Vendor: {}", self.vendor.as_deref().unwrap_or("None"));
+        println!("URL: {}", self.url.as_deref().unwrap_or("None"));
+        println!("Summary: {}", self.summary);
+        println!("Description: \n{}", self.description);
+    }
+
+    pub fn show(&self, c: char) {
+        match c {
+            'b' => println!("{}", self.nevra()),
+            'i' => self.show_info(),
+            'r' => self.require.as_ref().unwrap().show(),
+            'c' => self.changelog.as_ref().unwrap().show(),
+            'p' => self.provide.as_ref().unwrap().show(),
+            _ => {}
+        }
     }
 }
 
