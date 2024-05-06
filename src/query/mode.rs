@@ -3,6 +3,8 @@ use crate::{
     rpm::db::{find_package, installed_packages},
 };
 
+use rpm;
+
 pub struct QueryMode {}
 
 impl QueryMode {
@@ -19,7 +21,36 @@ impl QueryMode {
                             pkgs = find_package(key.clone(), cli.query).collect();
                         }
                     }
-                    Commands::File(file) => (),
+                    Commands::File(file) => {
+                        for f in file.files.iter() {
+                            let p = rpm::Package::open(f).unwrap();
+                            match cli.query {
+                                'b' => {
+
+                                    println!("{}-{}-{}.{}", p.metadata.get_name().unwrap(), p.metadata.get_version().unwrap(), p.metadata.get_release().unwrap(), p.metadata.get_arch().unwrap());
+                                },
+                                'i' => {},
+                                'c' => {
+                                    for cl in p.metadata.get_changelog_entries().unwrap() {
+                                        println!("{}\n{}\n", cl.name, cl.description);
+                                    }
+                                },
+                                'r' => {
+                                    for r in p.metadata.get_requires().unwrap() {
+                                        println!("{}", r.name);
+                                    }
+                                },
+                                'p' => {
+                                    for pv in p.metadata.get_provides().unwrap() {
+                                        println!("{}", pv.name);
+                                    }
+                                }
+                                _ => (),
+                            }
+                        }
+
+                    return;
+                    },
                 },
                 None => (),
             },
@@ -29,39 +60,8 @@ impl QueryMode {
             println!("package {:?} is not install", keys);
             return;
         }
-        match &cli.query {
-            'i' => {
-                for package in pkgs {
-                    println!("{:#?}", package);
-                }
-            }
-            'b' => {
-                for package in pkgs {
-                    println!("{}", package);
-                }
-            }
-            'c' => {
-                for package in pkgs {
-                    if let Some(changelog) = package.changelog {
-                        changelog.show();
-                    }
-                }
-            }
-            'r' => {
-                for package in pkgs {
-                    if let Some(requires) = package.require {
-                        requires.show();
-                    }
-                }
-            }
-            'p' => {
-                for package in pkgs {
-                    if let Some(provides) = package.provide {
-                        provides.show();
-                    }
-                }
-            }
-            _ => {}
+        for pkg in pkgs {
+            pkg.show(cli.query);
         }
     }
 }
