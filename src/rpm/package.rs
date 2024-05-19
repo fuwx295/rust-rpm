@@ -1,5 +1,4 @@
 use std::convert::TryFrom;
-use std::f32::consts::PI;
 use std::{fmt, time};
 
 use chrono::{DateTime, Utc, TimeZone};
@@ -28,7 +27,7 @@ impl Require {
             &self.requireversion) {
             for i in 0..names.len() {
                 match flags[i].symbol() {
-                    None => println!("{} {}", names[i], versions[i]),
+                    None => println!("{}", names[i]),
                     Some(flag) => println!("{} {} {}", names[i], flag, versions[i]),
                 }
             }
@@ -52,8 +51,7 @@ impl Changelog {
             &self.changelogtimes,
             &self.changelogtexts) {
             for i in 0..names.len() {
-                println!("* {} {}", buildtime(times[i]), names[i]);
-                println!("{}\n", texts[i]);
+                println!("* {} {}\n{}\n", buildtime(times[i]), names[i], texts[i]);
             }
         }
     }

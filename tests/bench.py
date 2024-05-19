@@ -22,7 +22,7 @@ def main(command):
     total_user_time = 0.0
     total_sys_time = 0.0
     total_real_time = 0.0
-    iterations = 100
+    iterations = 1000
 
     for _ in range(iterations):
         output = run_command(command)

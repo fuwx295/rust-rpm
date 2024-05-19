@@ -1,0 +1,3 @@
+Average user time: 0.3127 seconds
+Average sys time: 0.1017 seconds
+Average real time: 0.4227 seconds
