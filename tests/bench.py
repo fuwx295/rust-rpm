@@ -1,26 +1,48 @@
 import subprocess
-import time
+import sys
 
 def run_command(command):
-    start = time.time()
-    result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    end = time.time()
-    real_time = end - start
-    return real_time
+    result = subprocess.run(f'/usr/bin/time -p {" ".join(command)}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, universal_newlines=True)
+    return result.stderr
 
-def average_times(command, num_runs=100):
-    total_real = 0
+def parse_time_output(output):
+    user_time = 0.0
+    sys_time = 0.0
+    real_time = 0.0
+    for line in output.splitlines():
+        if line.startswith("user"):
+            user_time += float(line.split()[1])
+        elif line.startswith("sys"):
+            sys_time += float(line.split()[1])
+        elif line.startswith("real"):
+            real_time += float(line.split()[1])
+    return user_time, sys_time, real_time
 
-    for _ in range(num_runs):
-        real = run_command(command)
-        total_real += real
+def main(command):
+    total_user_time = 0.0
+    total_sys_time = 0.0
+    total_real_time = 0.0
+    iterations = 100
 
-    avg_real = total_real / num_runs
+    for _ in range(iterations):
+        output = run_command(command)
+        user_time, sys_time, real_time = parse_time_output(output)
+        total_user_time += user_time
+        total_sys_time += sys_time
+        total_real_time += real_time
 
-    return avg_real
+    avg_user_time = total_user_time / iterations
+    avg_sys_time = total_sys_time / iterations
+    avg_real_time = total_real_time / iterations
 
-command = "./rust-rpm -qb -a"
-avg_real= average_times(command)
+    print(f"Average user time: {avg_user_time:.4f} seconds")
+    print(f"Average sys time: {avg_sys_time:.4f} seconds")
+    print(f"Average real time: {avg_real_time:.4f} seconds")
 
-print(f"Average Real Time: {avg_real:.3f} seconds")
-
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python3 bench.py <command>")
+        sys.exit(1)
+    
+    command = sys.argv[1:]
+    main(command)
