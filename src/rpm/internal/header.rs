@@ -85,9 +85,14 @@ impl Header {
                 }
             }
             'c' => {
+                let ch_time = self.get(Tag::CHANGELOGTIME);
+                let changelogtimes = match ch_time {
+                    Some(d) => Some(d.to_int32_arr().unwrap().to_owned()),
+                    None => None,
+                };
                 let changelog = Changelog {
                     changelognames: self.get(Tag::CHANGELOGNAME).map(|d| d.as_str_array().unwrap().to_owned()),
-                    changelogtimes: self.get(Tag::CHANGELOGTIME).map(|d| d.to_int32_arr().unwrap().to_owned()),
+                    changelogtimes,
                     changelogtexts: self.get(Tag::CHANGELOGTEXT).map(|d| d.as_str_array().unwrap().to_owned()),
                 };
                 pkg.changelog = Some(changelog);

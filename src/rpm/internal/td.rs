@@ -64,18 +64,18 @@ impl<'hdr> TagData<'hdr> {
     /// Convert an `rpmtd_s` int an `TagData::Int32`
     pub unsafe fn int32(td: &librpm_sys::rpmtd_s) -> Self {
         assert_eq!(td.type_, TagType::INT32 as u32);
+        // println!("{}", td.count);
         
-        if td.count > 1 {
             let num_ptr = td.data as * const i32;
             let mut i32array = Vec::new();
             for idx in 0..td.count {
                 let num = num_ptr.offset(idx as isize);
                 i32array.push(*num);
             }
-            return TagData::Int32Array(i32array)
-        }
-        let ix = if td.ix >= 0 { td.ix as isize } else { 0 };
-        TagData::Int32(*(td.data as *const i32).offset(ix))
+            TagData::Int32Array(i32array)
+        
+        // let ix = if td.ix >= 0 { td.ix as isize } else { 0 };
+        // TagData::Int32(*(td.data as *const i32).offset(ix))
     }
 
     /// Convert an `rpmtd_s` int an `Int64`
@@ -207,8 +207,8 @@ impl<'hdr> TagData<'hdr> {
 
     /// Obtain an int32 value, if this is an int32
     pub fn to_int32(&self) -> Option<i32> {
-        match *self {
-            TagData::Int32(i) => Some(i),
+        match self {
+            TagData::Int32Array(i) => Some(i[0]),
             _ => None,
         }
     }
