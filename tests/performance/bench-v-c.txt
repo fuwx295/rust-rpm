@@ -1,0 +1,2 @@
+Average Percent of CPU this job got: 89.89%
+Average Maximum resident set size (kbytes): 23338.04
