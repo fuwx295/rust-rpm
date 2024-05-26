@@ -6,11 +6,11 @@ import statistics
 def run_command_with_time(command):
     try:
         # Run the command with /usr/bin/time -v
-        result = subprocess.run(['/usr/bin/time', '-v'] + command, stderr=subprocess.PIPE, text=True)
+        result = subprocess.run(f'/usr/bin/time -v {" ".join(command)}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, universal_newlines=True)
         
         # Extract Percent of CPU and maximum resident set size
         stderr_output = result.stderr
-        percent_cpu = re.search(r'Percent of CPU this job got: (\d+)%', stderr_output)
+        percent_cpu = re.search(r'Percent of CPU this job got: (\d+\.?\d*)%', stderr_output)
         max_resident_set_size = re.search(r'Maximum resident set size \(kbytes\): (\d+)', stderr_output)
         
         if percent_cpu and max_resident_set_size:
@@ -50,4 +50,5 @@ if __name__ == "__main__":
         sys.exit(1)
     
     # Get the command from the command line arguments
-    command
+    command = sys.argv[1:]
+    main(command)
